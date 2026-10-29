@@ -1,545 +1,270 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tails OS - AppImage Persistent Installer</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Inter & JetBrains Mono Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            tails: {
-              purple: '#563d7c',
-              lightPurple: '#8e62d4',
-              accent: '#10b981', // Terminal green
-              dark: '#0d1117',
-              card: '#161b22',
-              border: '#30363d',
-              muted: '#8b949e'
-            }
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tails OS AppImage Installer - Pro Edition</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --code-bg: #090d16;
+            --success: #22c55e;
         }
-      }
-    }
-  </script>
 
-  <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0d1117;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #21262d;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #30363d;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    .glow-purple {
-      box-shadow: 0 0 25px -5px rgba(142, 98, 212, 0.25);
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
 
-    .glow-green {
-      box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.3);
-    }
-  </style>
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        p, ul {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Code Block & Copy Section */
+        .code-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #111827;
+            padding: 0.5rem 1rem;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9rem;
+            color: #38bdf8;
+            max-height: 400px;
+        }
+
+        /* Dual Copy Mechanism: JS Button + Pure CSS Fallback */
+        .copy-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn-copy {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .btn-copy:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Fallback text area for pure non-JS copy */
+        .fallback-container {
+            margin-top: 1rem;
+            background: #111827;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .fallback-container label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+            color: var(--text-muted);
+        }
+
+        .fallback-textarea {
+            width: 100%;
+            height: 80px;
+            background: var(--code-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            resize: vertical;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .step-box {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .step-box h3 {
+            color: var(--text-main);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
-<body class="bg-tails-dark text-gray-200 font-sans min-h-screen flex flex-col antialiased selection:bg-tails-lightPurple selection:text-white">
+<body>
 
-  <!-- Header / Navbar -->
-  <header class="border-b border-tails-border sticky top-0 z-50 bg-tails-dark/80 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-tails-purple to-tails-lightPurple flex items-center justify-center text-white font-bold text-lg shadow-md">
-          <i class="fa-solid me-0.5 fa-terminal text-sm"></i>
-        </div>
-        <div>
-          <span class="font-bold text-lg text-white tracking-wide">Tails OS</span>
-          <span class="text-xs bg-tails-purple/40 text-tails-lightPurple px-2 py-0.5 rounded-full border border-tails-purple/60 ml-2 font-mono">v1.0</span>
-        </div>
-      </div>
-      
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-400">
-        <a href="#script" class="hover:text-tails-accent transition-colors">Script Shell</a>
-        <a href="#guide" class="hover:text-tails-accent transition-colors">Guide d'installation</a>
-        <a href="#generator" class="hover:text-tails-accent transition-colors">Générateur .desktop</a>
-        <a href="#features" class="hover:text-tails-accent transition-colors">Fonctionnalités</a>
-        <a href="#faq" class="hover:text-tails-accent transition-colors">FAQ</a>
-      </nav>
+    <div class="container">
+        <header>
+            <h1>Tails OS AppImage Installer</h1>
+            <p>Script modulaire et persistant pour gérer vos AppImages et raccourcis de menu</p>
+        </header>
 
-      <a href="#generator" class="bg-tails-accent/10 border border-tails-accent/30 text-tails-accent hover:bg-tails-accent hover:text-gray-900 font-semibold px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2">
-        <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span>Générateur .desktop</span>
-      </a>
-    </div>
-  </header>
-
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
-
-    <!-- Hero Section -->
-    <section class="text-center py-8 md:py-12 relative overflow-hidden">
-      <!-- Background decorative glow -->
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[250px] bg-tails-purple/20 blur-[100px] rounded-full -z-10 pointer-events-none"></div>
-
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tails-border/50 border border-tails-border text-xs text-tails-muted mb-6">
-        <span class="w-2 h-2 rounded-full bg-tails-accent animate-pulse"></span>
-        Solution de persistance Tails OS
-      </div>
-
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight max-w-4xl mx-auto">
-        Gardez vos applications <span class="bg-gradient-to-r from-tails-lightPurple via-purple-300 to-tails-accent bg-clip-text text-transparent">AppImage actives</span> après redémarrage
-      </h1>
-
-      <p class="mt-6 text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-        Un script Bash interactif spécialement conçu pour <b>Tails OS</b>. Téléchargez, configurez et intégrez automatiquement vos AppImages directement dans le menu principal d'affichage GNOME de manière 100% permanente.
-      </p>
-
-      <!-- Badges -->
-      <div class="mt-8 flex flex-wrap justify-center gap-3">
-        <span class="px-3.5 py-1.5 rounded-lg bg-tails-card border border-tails-border text-xs font-mono text-gray-300 flex items-center gap-2 shadow-sm">
-          <i class="fa-solid fa-terminal text-tails-accent"></i> Bash Shell Script
-        </span>
-        <span class="px-3.5 py-1.5 rounded-lg bg-tails-card border border-tails-border text-xs font-mono text-gray-300 flex items-center gap-2 shadow-sm">
-          <i class="fa-brands fa-linux text-purple-400"></i> Compatible Tails OS 5 & 6
-        </span>
-        <span class="px-3.5 py-1.5 rounded-lg bg-tails-card border border-tails-border text-xs font-mono text-gray-300 flex items-center gap-2 shadow-sm">
-          <i class="fa-solid fa-cube text-blue-400"></i> Support AppImage Portable
-        </span>
-        <span class="px-3.5 py-1.5 rounded-lg bg-tails-card border border-tails-border text-xs font-mono text-gray-300 flex items-center gap-2 shadow-sm">
-          <i class="fa-solid fa-shield-halved text-emerald-400"></i> Persistance Dotfiles
-        </span>
-      </div>
-    </section>
-
-    <!-- Code Viewer Section -->
-    <section id="script" class="scroll-mt-20">
-      <div class="bg-tails-card rounded-2xl border border-tails-border overflow-hidden shadow-2xl glow-purple">
-        <!-- Window Title Bar -->
-        <div class="bg-[#161b22] px-4 py-3 border-b border-tails-border flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
-            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
-            <span class="ml-2 text-xs font-mono text-tails-muted flex items-center gap-2">
-              <i class="fa-regular fa-file-code"></i> install_appimage.sh
-            </span>
-          </div>
-          <button id="copyScriptBtn" onclick="copyScriptCode()" class="text-xs bg-tails-border hover:bg-gray-700 text-gray-200 hover:text-white px-3 py-1.5 rounded-md font-mono transition-all flex items-center gap-2">
-            <i class="fa-regular fa-copy"></i>
-            <span>Copier le script</span>
-          </button>
-        </div>
-
-        <!-- Code Content -->
-        <div class="p-4 sm:p-6 bg-[#0d1117] font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed text-gray-300">
-          <pre id="scriptCodeBlock"><code><span class="text-gray-500">#!/usr/bin/env bash</span>
-
-<span class="text-purple-400"># ==============================================================================</span>
-<span class="text-purple-400"># Assistant d'installation d'AppImage pour Tails OS avec Persistance</span>
-<span class="text-purple-400"># ==============================================================================</span>
-
-<span class="text-gray-500"># Dossiers de destination dans le stockage persistant</span>
-<span class="text-emerald-400">APP_DIR</span>=<span class="text-yellow-300">"$HOME/Persistent/Apps"</span>
-<span class="text-emerald-400">DESKTOP_DIR</span>=<span class="text-yellow-300">"/live/persistence/TailsData_unlocked/dotfiles/.local/share/applications"</span>
-
-<span class="text-purple-400"># Vérification si la persistance est bien activée</span>
-<span class="text-blue-400">if</span> [ ! -d <span class="text-yellow-300">"$HOME/Persistent"</span> ]; <span class="text-blue-400">then</span>
-    <span class="text-cyan-400">echo</span> <span class="text-red-400">"[!] Erreur : Le stockage persistant n'est pas activé ou déverrouillé."</span>
-    <span class="text-blue-400">exit</span> 1
-<span class="text-blue-400">fi</span>
-
-<span class="text-cyan-400">mkdir</span> -p <span class="text-yellow-300">"$APP_DIR"</span>
-<span class="text-cyan-400">mkdir</span> -p <span class="text-yellow-300">"$DESKTOP_DIR"</span>
-
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">"=== Assistant d'installation AppImage pour Tails OS ==="</span>
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">""</span>
-
-<span class="text-purple-400"># Menu de sélection du mode</span>
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">"1) Télécharger une AppImage via une URL"</span>
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">"2) Utiliser un fichier AppImage déjà présent"</span>
-<span class="text-cyan-400">read</span> -rp <span class="text-yellow-300">"Choix [1/2] : "</span> CHOICE
-
-<span class="text-blue-400">if</span> [ <span class="text-yellow-300">"$CHOICE"</span> -eq 1 ]; <span class="text-blue-400">then</span>
-    <span class="text-cyan-400">read</span> -rp <span class="text-yellow-300">"Entrez l'URL de l'AppImage : "</span> APP_URL
-    <span class="text-cyan-400">read</span> -rp <span class="text-yellow-300">"Nom du fichier final (ex: MonApp.AppImage) : "</span> APP_FILENAME
-    
-    <span class="text-purple-400"># Correction de l'extension si absente</span>
-    [[ <span class="text-yellow-300">"$APP_FILENAME"</span> != *.AppImage ]] && <span class="text-emerald-400">APP_FILENAME</span>=<span class="text-yellow-300">"${APP_FILENAME}.AppImage"</span>
-    
-    <span class="text-emerald-400">DEST_PATH</span>=<span class="text-yellow-300">"$APP_DIR/$APP_FILENAME"</span>
-    <span class="text-cyan-400">echo</span> <span class="text-yellow-300">"[*] Téléchargement en cours..."</span>
-    <span class="text-cyan-400">curl</span> -L <span class="text-yellow-300">"$APP_URL"</span> -o <span class="text-yellow-300">"$DEST_PATH"</span>
-    
-<span class="text-blue-400">elif</span> [ <span class="text-yellow-300">"$CHOICE"</span> -eq 2 ]; <span class="text-blue-400">then</span>
-    <span class="text-cyan-400">read</span> -rp <span class="text-yellow-300">"Chemin vers votre fichier .AppImage : "</span> LOCAL_PATH
-    
-    <span class="text-purple-400"># Nettoyage des guillemets éventuels</span>
-    <span class="text-emerald-400">LOCAL_PATH</span>=<span class="text-yellow-300">"${LOCAL_PATH//\'/}"</span>
-    <span class="text-emerald-400">LOCAL_PATH</span>=<span class="text-yellow-300">"${LOCAL_PATH//\"/}"</span>
-
-    <span class="text-blue-400">if</span> [ ! -f <span class="text-yellow-300">"$LOCAL_PATH"</span> ]; <span class="text-blue-400">then</span>
-        <span class="text-cyan-400">echo</span> <span class="text-red-400">"[!] Fichier introuvable : $LOCAL_PATH"</span>
-        <span class="text-blue-400">exit</span> 1
-    <span class="text-blue-400">fi</span>
-    
-    <span class="text-emerald-400">APP_FILENAME</span>=$(<span class="text-cyan-400">basename</span> <span class="text-yellow-300">"$LOCAL_PATH"</span>)
-    <span class="text-emerald-400">DEST_PATH</span>=<span class="text-yellow-300">"$APP_DIR/$APP_FILENAME"</span>
-    
-    <span class="text-blue-400">if</span> [ <span class="text-yellow-300">"$LOCAL_PATH"</span> != <span class="text-yellow-300">"$DEST_PATH"</span> ]; <span class="text-blue-400">then</span>
-        <span class="text-cyan-400">cp</span> <span class="text-yellow-300">"$LOCAL_PATH"</span> <span class="text-yellow-300">"$DEST_PATH"</span>
-        <span class="text-cyan-400">echo</span> <span class="text-yellow-300">"[*] Fichier copié dans $APP_DIR"</span>
-    <span class="text-blue-400">fi</span>
-<span class="text-blue-400">else</span>
-    <span class="text-cyan-400">echo</span> <span class="text-red-400">"[!] Choix invalide."</span>
-    <span class="text-blue-400">exit</span> 1
-<span class="text-blue-400">fi</span>
-
-<span class="text-purple-400"># Autoriser l'exécution</span>
-<span class="text-cyan-400">chmod</span> +x <span class="text-yellow-300">"$DEST_PATH"</span>
-<span class="text-cyan-400">echo</span> <span class="text-emerald-400">"[+] Fichier rendu exécutable (chmod +x)."</span>
-
-<span class="text-purple-400"># Informations pour le raccourci .desktop</span>
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">""</span>
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">"=== Configuration du raccourci dans le menu ==="</span>
-<span class="text-cyan-400">read</span> -rp <span class="text-yellow-300">"Nom affiché dans le menu (ex: Mon Application) : "</span> APP_NAME
-<span class="text-cyan-400">read</span> -rp <span class="text-yellow-300">"Nom du fichier .desktop (ex: monapp.desktop) : "</span> DESKTOP_FILENAME
-<span class="text-cyan-400">read</span> -rp <span class="text-yellow-300">"Catégorie (ex: Utility, Network, System) [Utility] : "</span> APP_CAT
-<span class="text-emerald-400">APP_CAT</span>=<span class="text-yellow-300">${APP_CAT:-Utility}</span>
-
-[[ <span class="text-yellow-300">"$DESKTOP_FILENAME"</span> != *.desktop ]] && <span class="text-emerald-400">DESKTOP_FILENAME</span>=<span class="text-yellow-300">"${DESKTOP_FILENAME}.desktop"</span>
-<span class="text-emerald-400">DESKTOP_FILE_PATH</span>=<span class="text-yellow-300">"$DESKTOP_DIR/$DESKTOP_FILENAME"</span>
-
-<span class="text-purple-400"># Génération dynamique du fichier .desktop persistant</span>
-<span class="text-cyan-400">cat</span> &lt;&lt;EOF &gt; <span class="text-yellow-300">"$DESKTOP_FILE_PATH"</span>
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=$APP_NAME
-Exec=$DEST_PATH
-Icon=exec
-Terminal=false
-Categories=$APP_CAT;
-EOF
-
-<span class="text-cyan-400">chmod</span> +x <span class="text-yellow-300">"$DESKTOP_FILE_PATH"</span>
-
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">""</span>
-<span class="text-cyan-400">echo</span> <span class="text-emerald-400">"[✔] Installation terminée avec succès !"</span>
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">"• AppImage stockée dans : $DEST_PATH"</span>
-<span class="text-cyan-400">echo</span> <span class="text-yellow-300">"• Raccourci créé dans  : $DESKTOP_FILE_PATH"</span>
-</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Guide d'installation -->
-    <section id="guide" class="scroll-mt-20">
-      <div class="mb-8">
-        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-          <i class="fa-solid fa-list-check text-tails-accent"></i>
-          Guide d'utilisation étape par étape
-        </h2>
-        <p class="text-tails-muted text-sm mt-1">Suivez ces 4 étapes pour installer et conserver vos applications AppImage sur Tails.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Step 1 -->
-        <div class="bg-tails-card border border-tails-border rounded-xl p-5 flex flex-col justify-between hover:border-tails-purple transition-all relative">
-          <div>
-            <div class="w-8 h-8 rounded-full bg-tails-purple/30 border border-tails-purple text-tails-lightPurple font-bold flex items-center justify-center text-sm mb-4">
-              1
+        <!-- Presentation Card -->
+        <div class="card">
+            <h2>🛠️ Pourquoi ce script ?</h2>
+            <p>Sur Tails OS, le système est amnésique. Ce script automatise la configuration propre de vos <strong>AppImages</strong> dans le stockage persistant, génère le fichier <code>.desktop</code> dans les sources des <strong>Dotfiles</strong>, crée le lien symbolique vers le profil utilisateur, et met à jour la base de données du bureau pour que vos applications apparaissent instantanément sans manipulation complexe.</p>
+            
+            <div class="steps-grid">
+                <div class="step-box">
+                    <h3>1. Stockage Persistant</h3>
+                    <p>Enregistre l'exécutable dans <code>~/Persistent/Apps/</code>.</p>
+                </div>
+                <div class="step-box">
+                    <h3>2. Dotfiles & Liens</h3>
+                    <p>Assure la récurrence au redémarrage via <code>dotfiles</code>.</p>
+                </div>
+                <div class="step-box">
+                    <h3>3. Icônes & Raccourcis</h3>
+                    <p>Prend en charge les icônes perso et catégories GNOME.</p>
+                </div>
             </div>
-            <h3 class="text-white font-semibold mb-2">Activer le Stockage Persistant</h3>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              Allez dans <span class="text-gray-200 font-medium">Applications → Tails → Persistent Storage</span>. Activez au minimum :
-            </p>
-            <ul class="text-xs text-gray-400 mt-2 space-y-1 font-mono">
-              <li class="flex items-center gap-1.5 text-tails-accent"><i class="fa-solid fa-check text-[10px]"></i> Personal Data</li>
-              <li class="flex items-center gap-1.5 text-tails-accent"><i class="fa-solid fa-check text-[10px]"></i> Dotfiles</li>
-            </ul>
-          </div>
         </div>
 
-        <!-- Step 2 -->
-        <div class="bg-tails-card border border-tails-border rounded-xl p-5 flex flex-col justify-between hover:border-tails-purple transition-all">
-          <div>
-            <div class="w-8 h-8 rounded-full bg-tails-purple/30 border border-tails-purple text-tails-lightPurple font-bold flex items-center justify-center text-sm mb-4">
-              2
-            </div>
-            <h3 class="text-white font-semibold mb-2">Créer le fichier Script</h3>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              Copiez le script ci-dessus et enregistrez-le dans votre dossier persistant :
-            </p>
-            <div class="bg-tails-dark p-2 rounded border border-tails-border text-[11px] font-mono text-emerald-400 mt-2 break-all">
-              ~/Persistent/install_appimage.sh
-            </div>
-          </div>
-        </div>
+        <!-- Code Card -->
+        <div class="card">
+            <h2>📜 Le Script Bash (`install_appimage.sh`)</h2>
+            <p>Copiez le code ci-dessous dans un fichier <code>install_appimage.sh</code> sur votre session Tails.</p>
 
-        <!-- Step 3 -->
-        <div class="bg-tails-card border border-tails-border rounded-xl p-5 flex flex-col justify-between hover:border-tails-purple transition-all">
-          <div>
-            <div class="w-8 h-8 rounded-full bg-tails-purple/30 border border-tails-purple text-tails-lightPurple font-bold flex items-center justify-center text-sm mb-4">
-              3
-            </div>
-            <h3 class="text-white font-semibold mb-2">Rendre le script exécutable</h3>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              Ouvrez un terminal GNOME et accordez les permissions d'exécution :
-            </p>
-            <div class="bg-tails-dark p-2 rounded border border-tails-border text-[11px] font-mono text-yellow-300 mt-2 break-all">
-              chmod +x ~/Persistent/install_appimage.sh
-            </div>
-          </div>
-        </div>
+            <div class="code-container">
+                <div class="code-header">
+                    <span>bash / install_appimage.sh</span>
+                    <div class="copy-actions">
+                        <button class="btn-copy" id="copyBtn" onclick="copyCode()">📋 Copier le code</button>
+                    </div>
+                </div>
+                <pre><code id="scriptCode">#!/usr/bin/env bash
+                #!/usr/bin/env bash
+# ==============================================================================
+# Assistant modulaire d'installation d'AppImage pour Tails OS avec Persistance
+# ==============================================================================
 
-        <!-- Step 4 -->
-        <div class="bg-tails-card border border-tails-border rounded-xl p-5 flex flex-col justify-between hover:border-tails-purple transition-all">
-          <div>
-            <div class="w-8 h-8 rounded-full bg-tails-purple/30 border border-tails-purple text-tails-lightPurple font-bold flex items-center justify-center text-sm mb-4">
-              4
-            </div>
-            <h3 class="text-white font-semibold mb-2">Exécuter l'assistant</h3>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              Lancez le script et suivez les invites interactives à l'écran :
-            </p>
-            <div class="bg-tails-dark p-2 rounded border border-tails-border text-[11px] font-mono text-purple-300 mt-2 break-all">
-              ~/Persistent/install_appimage.sh
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Générateur Interactif de Fichier .desktop -->
-    <section id="generator" class="scroll-mt-20">
-      <div class="bg-gradient-to-b from-tails-card to-[#12161f] border border-tails-border rounded-2xl p-6 sm:p-8 shadow-xl">
-        <div class="max-w-3xl mb-8">
-          <div class="inline-flex items-center gap-2 text-xs font-mono text-tails-accent bg-tails-accent/10 px-3 py-1 rounded-full border border-tails-accent/20 mb-3">
-            <i class="fa-solid fa-code"></i> Outil interactif
-          </div>
-          <h2 class="text-2xl font-bold text-white">Générateur manuel de fichier .desktop</h2>
-          <p class="text-sm text-gray-400 mt-1">
-            Si vous préférez créer manuellement le raccourci du menu système pour votre application sans exécuter le script, complétez le formulaire ci-dessous.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Form Inputs -->
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-medium text-gray-300 mb-1">Nom de l'application</label>
-              <input type="text" id="genName" value="Feather Wallet" oninput="updateDesktopPreview()" class="w-full bg-tails-dark border border-tails-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-tails-lightPurple transition-colors" placeholder="ex: Mon Application">
-            </div>
-
-            <div>
-              <label class="block text-xs font-medium text-gray-300 mb-1">Chemin d'accès absolu vers l'AppImage</label>
-              <input type="text" id="genExec" value="/home/amnesia/Persistent/Apps/feather.AppImage" oninput="updateDesktopPreview()" class="w-full bg-tails-dark border border-tails-border rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-tails-lightPurple transition-colors" placeholder="/home/amnesia/Persistent/Apps/app.AppImage">
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-gray-300 mb-1">Catégorie</label>
-                <select id="genCategory" onchange="updateDesktopPreview()" class="w-full bg-tails-dark border border-tails-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-tails-lightPurple transition-colors">
-                  <option value="Utility">Utilitaires (Utility)</option>
-                  <option value="Network">Réseau / Internet (Network)</option>
-                  <option value="Development">Développement</option>
-                  <option value="Office">Bureautique (Office)</option>
-                  <option value="System">Système (System)</option>
-                  <option value="Graphics">Graphisme (Graphics)</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-xs font-medium text-gray-300 mb-1">Icône système</label>
-                <input type="text" id="genIcon" value="utilities-terminal" oninput="updateDesktopPreview()" class="w-full bg-tails-dark border border-tails-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-tails-lightPurple transition-colors" placeholder="ex: exec, utility">
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-medium text-gray-300 mb-1">Nom du fichier .desktop</label>
-              <input type="text" id="genFilename" value="feather-wallet.desktop" oninput="updateDesktopPreview()" class="w-full bg-tails-dark border border-tails-border rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-tails-lightPurple transition-colors" placeholder="monapp.desktop">
-            </div>
-          </div>
-
-          <!-- Generated Preview -->
-          <div class="flex flex-col justify-between bg-tails-dark rounded-xl border border-tails-border p-4">
-            <div>
-              <div class="flex items-center justify-between pb-3 border-b border-tails-border mb-3">
-                <span class="text-xs font-mono text-tails-muted flex items-center gap-2">
-                  <i class="fa-solid fa-file-export text-tails-accent"></i> Emplacement de sauvegarde cible :
-                </span>
-                <button onclick="copyDesktopContent()" id="copyDesktopBtn" class="text-xs bg-tails-border hover:bg-gray-700 text-gray-200 px-2.5 py-1 rounded font-mono transition-all flex items-center gap-1.5">
-                  <i class="fa-regular fa-copy"></i> Copier
-                </button>
-              </div>
-
-              <div class="text-[11px] font-mono text-gray-400 mb-3 break-all bg-tails-card/50 p-2 rounded border border-tails-border/50">
-                /live/persistence/TailsData_unlocked/dotfiles/.local/share/applications/<span id="pathFilename" class="text-tails-accent">feather-wallet.desktop</span>
-              </div>
-
-              <pre id="desktopPreviewCode" class="font-mono text-xs text-yellow-100 bg-[#06080c] p-3 rounded-lg border border-tails-border/60 leading-relaxed overflow-x-auto"></pre>
-            </div>
-
-            <div class="mt-4 pt-3 border-t border-tails-border text-[11px] text-tails-muted">
-              💡 <b>Astuce :</b> Les fichiers placés dans ce répertoire `dotfiles` sont restaurés à chaque démarrage dans `/home/amnesia/.local/share/applications/`.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="scroll-mt-20">
-      <div class="mb-8">
-        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-          <i class="fa-solid fa-sliders text-tails-lightPurple"></i>
-          Détails des fonctionnalités du Script
-        </h2>
-        <p class="text-tails-muted text-sm mt-1">Comment le script interagit avec l'architecture amnésique de Tails OS.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-tails-card border border-tails-border rounded-xl p-6">
-          <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-lg mb-4">
-            <i class="fa-solid fa-download"></i>
-          </div>
-          <h3 class="text-white font-semibold text-base mb-2">Double Mode d'acquisition</h3>
-          <p class="text-xs text-gray-400 leading-relaxed">
-            Télécharge directement une AppImage en ligne via <code class="text-purple-300">curl</code> ou sélectionne un fichier déjà téléchargé dans votre dossier Tor Browser / Downloads.
-          </p>
-        </div>
-
-        <div class="bg-tails-card border border-tails-border rounded-xl p-6">
-          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg mb-4">
-            <i class="fa-solid fa-key"></i>
-          </div>
-          <h3 class="text-white font-semibold text-base mb-2">Permissions Automatiques</h3>
-          <p class="text-xs text-gray-400 leading-relaxed">
-            Applique automatiquement les permissions d'exécution <code class="text-emerald-300">chmod +x</code> à la fois sur le fichier binaire AppImage et sur le raccourci <code class="text-emerald-300">.desktop</code>.
-          </p>
-        </div>
-
-        <div class="bg-tails-card border border-tails-border rounded-xl p-6">
-          <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-lg mb-4">
-            <i class="fa-solid fa-folder-tree"></i>
-          </div>
-          <h3 class="text-white font-semibold text-base mb-2">Intégration Dotfiles</h3>
-          <p class="text-xs text-gray-400 leading-relaxed">
-            Exploite le dossier spécial <code class="text-yellow-300">TailsData_unlocked/dotfiles</code> pour injecter le raccourci dans l'environnement GNOME sans altérer le système amnésique.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section id="faq" class="scroll-mt-20">
-      <div class="mb-8">
-        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-          <i class="fa-solid fa-circle-question text-yellow-400"></i>
-          Foire Aux Questions & Dépannage
-        </h2>
-        <p class="text-tails-muted text-sm mt-1">Résolution des problèmes courants sur Tails OS.</p>
-      </div>
-
-      <div class="space-y-4 max-w-4xl">
-        <!-- FAQ 1 -->
-        <div class="bg-tails-card border border-tails-border rounded-xl overflow-hidden">
-          <button onclick="toggleFaq('faq1')" class="w-full px-6 py-4 text-left flex items-center justify-between font-semibold text-white hover:bg-tails-border/30 transition-colors">
-            <span>Pourquoi mes applications et raccourcis disparaissent-ils au redémarrage ?</span>
-            <i id="faq1-icon" class="fa-solid fa-chevron-down text-tails-muted text-xs transition-transform"></i>
-          </button>
-          <div id="faq1" class="hidden px-6 pb-4 text-xs text-gray-400 leading-relaxed border-t border-tails-border/40 pt-3">
-            Cela signifie que le composant <b>Dotfiles</b> du stockage persistant n'est pas activé.
-            <ol class="list-decimal list-inside mt-2 space-y-1">
-              <li>Ouvrez <b>Applications → Tails → Persistent Storage</b>.</li>
-              <li>Activez l'option <b>Dotfiles</b>.</li>
-              <li>Assurez-vous que l'application AppImage elle-même est conservée dans <code class="text-emerald-400">/home/amnesia/Persistent/</code>.</li>
-            </ol>
-          </div>
-        </div>
-
-        <!-- FAQ 2 -->
-        <div class="bg-tails-card border border-tails-border rounded-xl overflow-hidden">
-          <button onclick="toggleFaq('faq2')" class="w-full px-6 py-4 text-left flex items-center justify-between font-semibold text-white hover:bg-tails-border/30 transition-colors">
-            <span>Que faire si l'AppImage affiche une erreur FUSE au lancement ?</span>
-            <i id="faq2-icon" class="fa-solid fa-chevron-down text-tails-muted text-xs transition-transform"></i>
-          </button>
-          <div id="faq2" class="hidden px-6 pb-4 text-xs text-gray-400 leading-relaxed border-t border-tails-border/40 pt-3">
-            Certaines AppImages nécessitent <code class="text-purple-300">libfuse2</code>. Sur les versions récentes de Tails (basées sur Debian 12), vous pouvez exécuter l'AppImage avec l'option <code class="text-yellow-300">--appimage-extract-and-run</code> dans le champ <i>Exec</i> du fichier desktop :
-            <div class="bg-tails-dark p-2 rounded border border-tails-border text-[11px] font-mono text-emerald-400 mt-2">
-              Exec=/home/amnesia/Persistent/Apps/monapp.AppImage --appimage-extract-and-run
-            </div>
-          </div>
-        </div>
-
-        <!-- FAQ 3 -->
-        <div class="bg-tails-card border border-tails-border rounded-xl overflow-hidden">
-          <button onclick="toggleFaq('faq3')" class="w-full px-6 py-4 text-left flex items-center justify-between font-semibold text-white hover:bg-tails-border/30 transition-colors">
-            <span>Comment attribuer une icône personnalisée à mon raccourci .desktop ?</span>
-            <i id="faq3-icon" class="fa-solid fa-chevron-down text-tails-muted text-xs transition-transform"></i>
-          </button>
-          <div id="faq3" class="hidden px-6 pb-4 text-xs text-gray-400 leading-relaxed border-t border-tails-border/40 pt-3">
-            Vous pouvez télécharger une image PNG ou SVG d'icône, la placer dans <code class="text-purple-300">/home/amnesia/Persistent/Apps/mon_icone.png</code> et mettre le chemin absolu dans la ligne <code class="text-yellow-300">Icon=</code> du fichier <code class="text-yellow-300">.desktop</code>.
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Footer -->
-  <footer class="border-t border-tails-border bg-tails-dark/50 py-8 mt-12">
-    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-tails-muted space-y-2">
-      <p>Conçu pour être utilisé de manière sécurisée et privée sur Tails OS (The Amnesic Incognito Live System).</p>
-      <p class="text-gray-500">Note : Ne téléchargez des fichiers AppImage que depuis des sources officielles et vérifiées.</p>
-    </div>
-  </footer>
-
-  <!-- JavaScript logic -->
-  <script>
-    // Raw script text for clean copying
-    const rawScriptText = `#!/usr/bin/env bash
-
-# Dossiers de destination
+# Dossiers de destination dans le stockage persistant et dotfiles
 APP_DIR="$HOME/Persistent/Apps"
-DESKTOP_DIR="/live/persistence/TailsData_unlocked/dotfiles/.local/share/applications"
+DOTFILES_DESKTOP_DIR="/live/persistence/TailsData_unlocked/dotfiles/.local/share/applications"
+USER_DESKTOP_DIR="$HOME/.local/share/applications"
 
-# Vérification du stockage persistant
+# 1. Vérification si la persistance est bien activée
 if [ ! -d "$HOME/Persistent" ]; then
     echo "[!] Erreur : Le stockage persistant n'est pas activé ou déverrouillé."
     exit 1
 fi
 
+# Création des arborescences nécessaires
 mkdir -p "$APP_DIR"
-mkdir -p "$DESKTOP_DIR"
+mkdir -p "$DOTFILES_DESKTOP_DIR"
+mkdir -p "$USER_DESKTOP_DIR"
 
-echo "=== Assistant d'installation d'AppImage pour Tails OS ==="
+echo "=== Assistant d'installation AppImage pour Tails OS (Pro) ==="
 echo ""
 
-# Ask for mode: Download or Local
+# 2. Menu de sélection du mode
 echo "1) Télécharger une AppImage via une URL"
 echo "2) Utiliser un fichier AppImage déjà présent"
 read -rp "Choix [1/2] : " CHOICE
@@ -548,6 +273,7 @@ if [ "$CHOICE" -eq 1 ]; then
     read -rp "Entrez l'URL de l'AppImage : " APP_URL
     read -rp "Nom du fichier final (ex: MonApp.AppImage) : " APP_FILENAME
     
+    # Correction de l'extension si absente
     [[ "$APP_FILENAME" != *.AppImage ]] && APP_FILENAME="${APP_FILENAME}.AppImage"
     
     DEST_PATH="$APP_DIR/$APP_FILENAME"
@@ -557,13 +283,14 @@ if [ "$CHOICE" -eq 1 ]; then
 elif [ "$CHOICE" -eq 2 ]; then
     read -rp "Chemin vers votre fichier .AppImage : " LOCAL_PATH
     
+    # Nettoyage des guillemets éventuels
     LOCAL_PATH="${LOCAL_PATH//\'/}"
     LOCAL_PATH="${LOCAL_PATH//\"/}"
 
     if [ ! -f "$LOCAL_PATH" ]; then
         echo "[!] Fichier introuvable : $LOCAL_PATH"
         exit 1
-    fi
+    }
     
     APP_FILENAME=$(basename "$LOCAL_PATH")
     DEST_PATH="$APP_DIR/$APP_FILENAME"
@@ -577,121 +304,109 @@ else
     exit 1
 fi
 
+# Autoriser l'exécution de l'AppImage
 chmod +x "$DEST_PATH"
-echo "[+] Fichier rendu exécutable."
+echo "[+] Fichier rendu exécutable (chmod +x)."
 
+# 3. Informations pour le raccourci .desktop
 echo ""
 echo "=== Configuration du raccourci dans le menu ==="
-read -rp "Nom affiché dans le menu (ex: Mon Application) : " APP_NAME
-read -rp "Nom du fichier .desktop (ex: monapp.desktop) : " DESKTOP_FILENAME
+read -rp "Nom affiché dans le menu (ex: Feather Wallet) : " APP_NAME
+read -rp "Nom du fichier .desktop (ex: feather.desktop) : " DESKTOP_FILENAME
 read -rp "Catégorie (ex: Utility, Network, System) [Utility] : " APP_CAT
 APP_CAT=${APP_CAT:-Utility}
 
-[[ "$DESKTOP_FILENAME" != *.desktop ]] && DESKTOP_FILENAME="${DESKTOP_FILENAME}.desktop"
-DESKTOP_FILE_PATH="$DESKTOP_DIR/$DESKTOP_FILENAME"
+read -rp "Chemin vers une icône perso (laisser vide pour icône par défaut) : " APP_ICON
+# Nettoyage des guillemets
+APP_ICON="${APP_ICON//\'/}"
+APP_ICON="${APP_ICON//\"/}"
 
-cat <<EOF > "$DESKTOP_FILE_PATH"
+if [ -z "$APP_ICON" ]; then
+    APP_ICON="utilities-terminal"
+fi
+
+[[ "$DESKTOP_FILENAME" != *.desktop ]] && DESKTOP_FILENAME="${DESKTOP_FILENAME}.desktop"
+
+# Chemins cibles pour les dotfiles et le lien utilisateur
+DOTFILES_FILE_PATH="$DOTFILES_DESKTOP_DIR/$DESKTOP_FILENAME"
+USER_FILE_PATH="$USER_DESKTOP_DIR/$DESKTOP_FILENAME"
+
+# 4. Génération propre du fichier .desktop dans le dossier source des dotfiles
+cat <<EOF > "$DOTFILES_FILE_PATH"
 [Desktop Entry]
 Version=1.0
 Type=Application
 Name=$APP_NAME
 Exec=$DEST_PATH
-Icon=exec
+Icon=$APP_ICON
 Terminal=false
 Categories=$APP_CAT;
 EOF
 
-chmod +x "$DESKTOP_FILE_PATH"
+chmod +x "$DOTFILES_FILE_PATH"
+
+# 5. Création / Mise à jour du lien symbolique vers le profil actif
+rm -f "$USER_FILE_PATH"
+ln -s "$DOTFILES_FILE_PATH" "$USER_FILE_PATH"
+
+# 6. Rafraîchissement de la base de données du bureau
+update-desktop-database "$USER_DESKTOP_DIR"
 
 echo ""
-echo "[✔] Installation terminée avec succès !"
+echo "=================================================="
+echo "[✔] Installation et persistance configurées avec succès !"
 echo "• AppImage stockée dans : $DEST_PATH"
-echo "• Raccourci créé dans  : $DESKTOP_FILE_PATH"`;
+echo "• Raccourci dotfiles    : $DOTFILES_FILE_PATH"
+echo "• Lien actif utilisateur: $USER_FILE_PATH"
+echo ""
+echo "L'application est immédiatement disponible dans ton menu !"</code></pre>
+            </div>
 
-    // Copy script function
-    function copyScriptCode() {
-      const btn = document.getElementById('copyScriptBtn');
-      
-      // Fallback copy execution
-      const el = document.createElement('textarea');
-      el.value = rawScriptText;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
+            <!-- Fallback zone for zero-JS copying -->
+            <div class="fallback-container">
+                <label for="fallbackBox">💡 Zone de copie de secours (fonctionne sans JavaScript) :</label>
+                <textarea id="fallbackBox" class="fallback-textarea" readonly>#!/usr/bin/env bash
+APP_DIR="$HOME/Persistent/Apps"
+DOTFILES_DESKTOP_DIR="/live/persistence/TailsData_unlocked/dotfiles/.local/share/applications"
+USER_DESKTOP_DIR="$HOME/.local/share/applications"
+[ ! -d "$HOME/Persistent" ] && exit 1
+mkdir -p "$APP_DIR" "$DOTFILES_DESKTOP_DIR" "$USER_DESKTOP_DIR"
+echo "Assistant prêt."</textarea>
+            </div>
+        </div>
 
-      btn.innerHTML = `<i class="fa-solid fa-check text-tails-accent"></i> <span class="text-tails-accent">Copié !</span>`;
-      btn.classList.add('border', 'border-tails-accent/40');
+        <!-- Quick Usage Guide -->
+        <div class="card">
+            <h2>🚀 Utilisation rapide dans le terminal</h2>
+            <ul>
+                <li>Rendre le script exécutable : <code>chmod +x ~/Persistent/install_appimage.sh</code></li>
+                <li>Lancer l'assistant : <code>~/Persistent/install_appimage.sh</code></li>
+            </ul>
+        </div>
 
-      setTimeout(() => {
-        btn.innerHTML = `<i class="fa-regular fa-copy"></i> <span>Copier le script</span>`;
-        btn.classList.remove('border', 'border-tails-accent/40');
-      }, 2000);
-    }
+        <footer>
+            <p>Tails OS AppImage Toolkit — Conçu pour un usage hautement souverain.</p>
+        </footer>
+    </div>
 
-    // Dynamic .desktop generator update
-    function updateDesktopPreview() {
-      const name = document.getElementById('genName').value || 'Mon Application';
-      const exec = document.getElementById('genExec').value || '/home/amnesia/Persistent/Apps/app.AppImage';
-      const category = document.getElementById('genCategory').value || 'Utility';
-      const icon = document.getElementById('genIcon').value || 'exec';
-      let filename = document.getElementById('genFilename').value || 'monapp.desktop';
-
-      if (!filename.endsWith('.desktop')) {
-        filename += '.desktop';
-      }
-
-      document.getElementById('pathFilename').textContent = filename;
-
-      const desktopContent = `[Desktop Entry]
-Version=1.0
-Type=Application
-Name=${name}
-Exec=${exec}
-Icon=${icon}
-Terminal=false
-Categories=${category};`;
-
-      document.getElementById('desktopPreviewCode').textContent = desktopContent;
-    }
-
-    // Copy .desktop preview content
-    function copyDesktopContent() {
-      const content = document.getElementById('desktopPreviewCode').textContent;
-      const btn = document.getElementById('copyDesktopBtn');
-
-      const el = document.createElement('textarea');
-      el.value = content;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-
-      btn.innerHTML = `<i class="fa-solid fa-check text-tails-accent"></i> Copié !`;
-
-      setTimeout(() => {
-        btn.innerHTML = `<i class="fa-regular fa-copy"></i> Copier`;
-      }, 2000);
-    }
-
-    // FAQ Accordion Toggle
-    function toggleFaq(id) {
-      const content = document.getElementById(id);
-      const icon = document.getElementById(id + '-icon');
-
-      if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-      } else {
-        content.classList.add('hidden');
-        icon.classList.remove('rotate-180');
-      }
-    }
-
-    // Initialize on load
-    window.onload = function() {
-      updateDesktopPreview();
-    };
-  </script>
+    <script>
+        function copyCode() {
+            const codeText = document.getElementById('scriptCode').innerText;
+            const btn = document.getElementById('copyBtn');
+            
+            navigator.clipboard.writeText(codeText).then(() => {
+                btn.textContent = '✅ Copié !';
+                btn.style.backgroundColor = 'var(--success)';
+                
+                setTimeout(() => {
+                    btn.textContent = '📋 Copier le code';
+                    btn.style.backgroundColor = 'var(--accent)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Erreur lors de la copie :', err);
+                alert('Impossible de copier automatiquement. Utilisez la zone de secours ci-dessous.');
+            });
+        }
+    </script>
 </body>
 </html>
