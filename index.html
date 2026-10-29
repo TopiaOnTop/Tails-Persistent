@@ -82,7 +82,6 @@
             margin-bottom: 0.5rem;
         }
 
-        /* Code Block & Copy Section */
         .code-container {
             position: relative;
             margin-top: 1rem;
@@ -110,16 +109,9 @@
             padding: 1rem;
             overflow-x: auto;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: #38bdf8;
-            max-height: 400px;
-        }
-
-        /* Dual Copy Mechanism: JS Button + Pure CSS Fallback */
-        .copy-actions {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
+            max-height: 450px;
         }
 
         .btn-copy {
@@ -141,7 +133,6 @@
             background-color: var(--accent-hover);
         }
 
-        /* Fallback text area for pure non-JS copy */
         .fallback-container {
             margin-top: 1rem;
             background: #111827;
@@ -159,13 +150,13 @@
 
         .fallback-textarea {
             width: 100%;
-            height: 80px;
+            height: 150px;
             background: var(--code-bg);
-            color: var(--text-main);
+            color: #38bdf8;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 0.5rem;
-            font-family: monospace;
+            font-family: ui-monospace, monospace;
             font-size: 0.8rem;
             resize: vertical;
         }
@@ -206,41 +197,35 @@
             <p>Script modulaire et persistant pour gérer vos AppImages et raccourcis de menu</p>
         </header>
 
-        <!-- Presentation Card -->
         <div class="card">
-            <h2>🛠️ Pourquoi ce script ?</h2>
-            <p>Sur Tails OS, le système est amnésique. Ce script automatise la configuration propre de vos <strong>AppImages</strong> dans le stockage persistant, génère le fichier <code>.desktop</code> dans les sources des <strong>Dotfiles</strong>, crée le lien symbolique vers le profil utilisateur, et met à jour la base de données du bureau pour que vos applications apparaissent instantanément sans manipulation complexe.</p>
+            <h2>🛠️ Fonctionnement du script</h2>
+            <p>Ce script gère le cycle complet d'installation d'une AppImage dans un environnement amnésique Tails OS :</p>
             
             <div class="steps-grid">
                 <div class="step-box">
-                    <h3>1. Stockage Persistant</h3>
-                    <p>Enregistre l'exécutable dans <code>~/Persistent/Apps/</code>.</p>
+                    <h3>1. Stockage</h3>
+                    <p>Enregistrement dans <code>~/Persistent/Apps/</code>.</p>
                 </div>
                 <div class="step-box">
-                    <h3>2. Dotfiles & Liens</h3>
-                    <p>Assure la récurrence au redémarrage via <code>dotfiles</code>.</p>
+                    <h3>2. Dotfiles</h3>
+                    <p>Création du <code>.desktop</code> persistant dans <code>TailsData_unlocked/dotfiles/</code>.</p>
                 </div>
                 <div class="step-box">
-                    <h3>3. Icônes & Raccourcis</h3>
-                    <p>Prend en charge les icônes perso et catégories GNOME.</p>
+                    <h3>3. Liaison & Menu</h3>
+                    <p>Création du lien symbolique dans <code>~/.local/share/applications/</code> et rafraîchissement GNOME.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Code Card -->
         <div class="card">
             <h2>📜 Le Script Bash (`install_appimage.sh`)</h2>
-            <p>Copiez le code ci-dessous dans un fichier <code>install_appimage.sh</code> sur votre session Tails.</p>
 
             <div class="code-container">
                 <div class="code-header">
                     <span>bash / install_appimage.sh</span>
-                    <div class="copy-actions">
-                        <button class="btn-copy" id="copyBtn" onclick="copyCode()">📋 Copier le code</button>
-                    </div>
+                    <button class="btn-copy" id="copyBtn" onclick="copyCode()">📋 Copier le code</button>
                 </div>
                 <pre><code id="scriptCode">#!/usr/bin/env bash
-                #!/usr/bin/env bash
 # ==============================================================================
 # Assistant modulaire d'installation d'AppImage pour Tails OS avec Persistance
 # ==============================================================================
@@ -290,7 +275,7 @@ elif [ "$CHOICE" -eq 2 ]; then
     if [ ! -f "$LOCAL_PATH" ]; then
         echo "[!] Fichier introuvable : $LOCAL_PATH"
         exit 1
-    }
+    fi
     
     APP_FILENAME=$(basename "$LOCAL_PATH")
     DEST_PATH="$APP_DIR/$APP_FILENAME"
@@ -362,26 +347,124 @@ echo ""
 echo "L'application est immédiatement disponible dans ton menu !"</code></pre>
             </div>
 
-            <!-- Fallback zone for zero-JS copying -->
+            <!-- Fallback zone (Works 100% without JS / No-JS) -->
             <div class="fallback-container">
-                <label for="fallbackBox">💡 Zone de copie de secours (fonctionne sans JavaScript) :</label>
-                <textarea id="fallbackBox" class="fallback-textarea" readonly>#!/usr/bin/env bash
+                <label for="fallbackBox">💡 Zone de copie directe (Sélectionnez tout et Ctrl+C si le JS est désactivé) :</label>
+                <textarea id="fallbackBox" class="fallback-textarea" readonly onclick="this.select();">#!/usr/bin/env bash
+# ==============================================================================
+# Assistant modulaire d'installation d'AppImage pour Tails OS avec Persistance
+# ==============================================================================
+
 APP_DIR="$HOME/Persistent/Apps"
 DOTFILES_DESKTOP_DIR="/live/persistence/TailsData_unlocked/dotfiles/.local/share/applications"
 USER_DESKTOP_DIR="$HOME/.local/share/applications"
-[ ! -d "$HOME/Persistent" ] && exit 1
-mkdir -p "$APP_DIR" "$DOTFILES_DESKTOP_DIR" "$USER_DESKTOP_DIR"
-echo "Assistant prêt."</textarea>
+
+if [ ! -d "$HOME/Persistent" ]; then
+    echo "[!] Erreur : Le stockage persistant n'est pas activé ou déverrouillé."
+    exit 1
+fi
+
+mkdir -p "$APP_DIR"
+mkdir -p "$DOTFILES_DESKTOP_DIR"
+mkdir -p "$USER_DESKTOP_DIR"
+
+echo "=== Assistant d'installation AppImage pour Tails OS (Pro) ==="
+echo ""
+
+echo "1) Télécharger une AppImage via une URL"
+echo "2) Utiliser un fichier AppImage déjà présent"
+read -rp "Choix [1/2] : " CHOICE
+
+if [ "$CHOICE" -eq 1 ]; then
+    read -rp "Entrez l'URL de l'AppImage : " APP_URL
+    read -rp "Nom du fichier final (ex: MonApp.AppImage) : " APP_FILENAME
+    
+    [[ "$APP_FILENAME" != *.AppImage ]] && APP_FILENAME="${APP_FILENAME}.AppImage"
+    
+    DEST_PATH="$APP_DIR/$APP_FILENAME"
+    echo "[*] Téléchargement en cours..."
+    curl -L "$APP_URL" -o "$DEST_PATH"
+    
+elif [ "$CHOICE" -eq 2 ]; then
+    read -rp "Chemin vers votre fichier .AppImage : " LOCAL_PATH
+    
+    LOCAL_PATH="${LOCAL_PATH//\'/}"
+    LOCAL_PATH="${LOCAL_PATH//\"/}"
+
+    if [ ! -f "$LOCAL_PATH" ]; then
+        echo "[!] Fichier introuvable : $LOCAL_PATH"
+        exit 1
+    fi
+    
+    APP_FILENAME=$(basename "$LOCAL_PATH")
+    DEST_PATH="$APP_DIR/$APP_FILENAME"
+    
+    if [ "$LOCAL_PATH" != "$DEST_PATH" ]; then
+        cp "$LOCAL_PATH" "$DEST_PATH"
+        echo "[*] Fichier copié dans $APP_DIR"
+    fi
+else
+    echo "[!] Choix invalide."
+    exit 1
+fi
+
+chmod +x "$DEST_PATH"
+echo "[+] Fichier rendu exécutable (chmod +x)."
+
+echo ""
+echo "=== Configuration du raccourci dans le menu ==="
+read -rp "Nom affiché dans le menu (ex: Feather Wallet) : " APP_NAME
+read -rp "Nom du fichier .desktop (ex: feather.desktop) : " DESKTOP_FILENAME
+read -rp "Catégorie (ex: Utility, Network, System) [Utility] : " APP_CAT
+APP_CAT=${APP_CAT:-Utility}
+
+read -rp "Chemin vers une icône perso (laisser vide pour icône par défaut) : " APP_ICON
+APP_ICON="${APP_ICON//\'/}"
+APP_ICON="${APP_ICON//\"/}"
+
+if [ -z "$APP_ICON" ]; then
+    APP_ICON="utilities-terminal"
+fi
+
+[[ "$DESKTOP_FILENAME" != *.desktop ]] && DESKTOP_FILENAME="${DESKTOP_FILENAME}.desktop"
+
+DOTFILES_FILE_PATH="$DOTFILES_DESKTOP_DIR/$DESKTOP_FILENAME"
+USER_FILE_PATH="$USER_DESKTOP_DIR/$DESKTOP_FILENAME"
+
+cat <<EOF > "$DOTFILES_FILE_PATH"
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=$APP_NAME
+Exec=$DEST_PATH
+Icon=$APP_ICON
+Terminal=false
+Categories=$APP_CAT;
+EOF
+
+chmod +x "$DOTFILES_FILE_PATH"
+
+rm -f "$USER_FILE_PATH"
+ln -s "$DOTFILES_FILE_PATH" "$USER_FILE_PATH"
+
+update-desktop-database "$USER_DESKTOP_DIR"
+
+echo ""
+echo "=================================================="
+echo "[✔] Installation et persistance configurées avec succès !"
+echo "• AppImage stockée dans : $DEST_PATH"
+echo "• Raccourci dotfiles    : $DOTFILES_FILE_PATH"
+echo "• Lien actif utilisateur: $USER_FILE_PATH"
+echo ""
+echo "L'application est immédiatement disponible dans ton menu !"</textarea>
             </div>
         </div>
 
-        <!-- Quick Usage Guide -->
         <div class="card">
-            <h2>🚀 Utilisation rapide dans le terminal</h2>
-            <ul>
-                <li>Rendre le script exécutable : <code>chmod +x ~/Persistent/install_appimage.sh</code></li>
-                <li>Lancer l'assistant : <code>~/Persistent/install_appimage.sh</code></li>
-            </ul>
+            <h2>🚀 Exécution dans Tails OS</h2>
+            <p>1. Sauvegarder le script : <code>cat &lt;&lt; 'EOF' &gt; ~/Persistent/install_appimage.sh</code> (coller le code) puis <code>EOF</code>.</p>
+            <p>2. Rendre exécutable : <code>chmod +x ~/Persistent/install_appimage.sh</code></p>
+            <p>3. Lancer : <code>~/Persistent/install_appimage.sh</code></p>
         </div>
 
         <footer>
@@ -403,8 +486,11 @@ echo "Assistant prêt."</textarea>
                     btn.style.backgroundColor = 'var(--accent)';
                 }, 2000);
             }).catch(err => {
-                console.error('Erreur lors de la copie :', err);
-                alert('Impossible de copier automatiquement. Utilisez la zone de secours ci-dessous.');
+                console.error('Erreur de copie :', err);
+                const fallback = document.getElementById('fallbackBox');
+                fallback.focus();
+                fallback.select();
+                alert('Copie automatique bloquée par le navigateur. Le texte a été sélectionné dans la zone de secours ci-dessous (Ctrl+C).');
             });
         }
     </script>
