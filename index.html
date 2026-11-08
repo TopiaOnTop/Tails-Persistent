@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tails OS AppImage Installer - Pro Edition</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --text-main: #f8fafc;
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --border-color: #1e293b;
+            --border-glow: #3b82f633;
+            --text-main: #f1f5f9;
             --text-muted: #94a3b8;
             --accent: #6366f1;
             --accent-hover: #4f46e5;
-            --code-bg: #090d16;
-            --success: #22c55e;
+            --code-bg: #07090f;
+            --success: #10b981;
+            --glow-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
         }
 
         * {
@@ -28,45 +30,60 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             line-height: 1.6;
-            padding: 2rem 1rem;
+            padding: 3rem 1.5rem;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.06) 0%, transparent 45%);
+            background-attachment: fixed;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 960px;
             margin: 0 auto;
         }
 
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 3rem;
         }
 
         header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-main);
+            font-size: 2.6rem;
+            font-weight: 800;
+            margin-bottom: 0.6rem;
+            background: linear-gradient(135deg, #f8fafc 30%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
         }
 
         header p {
             color: var(--text-muted);
-            font-size: 1.1rem;
+            font-size: 1.15rem;
         }
 
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), var(--glow-shadow);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
         }
 
         .card h2 {
             font-size: 1.4rem;
-            margin-bottom: 1rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            color: #f8fafc;
         }
 
         p, ul {
@@ -82,69 +99,79 @@
             margin-bottom: 0.5rem;
         }
 
+        code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.88rem;
+            color: #38bdf8;
+            border: 1px solid var(--border-color);
+        }
+
         .code-container {
             position: relative;
-            margin-top: 1rem;
+            margin-top: 1.25rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
         .code-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #111827;
-            padding: 0.5rem 1rem;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            border: 1px solid var(--border-color);
-            border-bottom: none;
+            background-color: #0d1322;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
             font-size: 0.85rem;
+            font-weight: 500;
             color: var(--text-muted);
         }
 
         pre {
             background-color: var(--code-bg);
-            border: 1px solid var(--border-color);
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-            padding: 1rem;
+            padding: 1.25rem;
             overflow-x: auto;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.88rem;
             color: #38bdf8;
-            max-height: 450px;
+            max-height: 480px;
         }
 
         .btn-copy {
             background-color: var(--accent);
             color: white;
             border: none;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
-            transition: background-color 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
         .btn-copy:hover {
             background-color: var(--accent-hover);
+            transform: translateY(-1px);
         }
 
         .fallback-container {
-            margin-top: 1rem;
-            background: #111827;
-            padding: 0.75rem;
-            border-radius: 8px;
+            margin-top: 1.5rem;
+            background: #0d1322;
+            padding: 1rem;
+            border-radius: 10px;
             border: 1px dashed var(--border-color);
         }
 
         .fallback-container label {
             display: block;
             font-size: 0.85rem;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.5rem;
             color: var(--text-muted);
         }
 
@@ -154,38 +181,51 @@
             background: var(--code-bg);
             color: #38bdf8;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 0.5rem;
+            border-radius: 8px;
+            padding: 0.75rem;
             font-family: ui-monospace, monospace;
             font-size: 0.8rem;
             resize: vertical;
+            outline: none;
+        }
+
+        .fallback-textarea:focus {
+            border-color: var(--accent);
         }
 
         .steps-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.25rem;
         }
 
         .step-box {
-            background: #0f172a;
+            background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--border-color);
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.25rem;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .step-box:hover {
+            transform: translateY(-2px);
         }
 
         .step-box h3 {
             color: var(--text-main);
-            font-size: 1rem;
+            font-size: 1.05rem;
             margin-bottom: 0.5rem;
+            font-weight: 600;
         }
 
         footer {
             text-align: center;
-            margin-top: 3rem;
+            margin-top: 4rem;
             color: var(--text-muted);
             font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
         }
     </style>
 </head>
@@ -194,86 +234,84 @@
     <div class="container">
         <header>
             <h1>Tails OS AppImage Installer</h1>
-            <p>Script modulaire et persistant pour gérer vos AppImages et raccourcis de menu</p>
+            <p>Modular and persistent script toolkit to seamlessly manage AppImages and application menu shortcuts</p>
         </header>
 
         <div class="card">
-            <h2>🛠️ Fonctionnement du script</h2>
-            <p>Ce script gère le cycle complet d'installation d'une AppImage dans un environnement amnésique Tails OS :</p>
+            <h2>🛠️ How the Script Works</h2>
+            <p>This automated script handles the complete installation and persistence cycle of any AppImage inside the amnesic Tails OS environment:</p>
             
             <div class="steps-grid">
                 <div class="step-box">
-                    <h3>1. Stockage</h3>
-                    <p>Enregistrement dans <code>~/Persistent/Apps/</code>.</p>
+                    <h3>1. Persistent Storage</h3>
+                    <p>Stores and executes binaries safely inside <code>~/Persistent/Apps/</code>.</p>
                 </div>
                 <div class="step-box">
-                    <h3>2. Dotfiles</h3>
-                    <p>Création du <code>.desktop</code> persistant dans <code>TailsData_unlocked/dotfiles/</code>.</p>
+                    <h3>2. Dotfiles Preservation</h3>
+                    <p>Saves persistent <code>.desktop</code> launchers directly to <code>TailsData_unlocked/dotfiles/</code>.</p>
                 </div>
                 <div class="step-box">
-                    <h3>3. Liaison & Menu</h3>
-                    <p>Création du lien symbolique dans <code>~/.local/share/applications/</code> et rafraîchissement GNOME.</p>
+                    <h3>3. Linking & GNOME Menu</h3>
+                    <p>Builds live symbolic links in <code>~/.local/share/applications/</code> and refreshes the desktop database.</p>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>📜 Le Script Bash (`install_appimage.sh`)</h2>
+            <h2>📜 Bash Script (`install_appimage.sh`)</h2>
 
             <div class="code-container">
                 <div class="code-header">
                     <span>bash / install_appimage.sh</span>
-                    <button class="btn-copy" id="copyBtn" onclick="copyCode()">📋 Copier le code</button>
+                    <button class="btn-copy" id="copyBtn" onclick="copyCode()">📋 Copy Code</button>
                 </div>
                 <pre><code id="scriptCode">#!/usr/bin/env bash
 # ==============================================================================
-# Assistant modulaire d'installation d'AppImage pour Tails OS avec Persistance
+# Modular AppImage Installation Assistant for Tails OS with Persistence
 # ==============================================================================
 
-# Dossiers de destination dans le stockage persistant et dotfiles
+# Destination directories in persistent storage and dotfiles
 APP_DIR="$HOME/Persistent/Apps"
 DOTFILES_DESKTOP_DIR="/live/persistence/TailsData_unlocked/dotfiles/.local/share/applications"
 USER_DESKTOP_DIR="$HOME/.local/share/applications"
 
-# 1. Vérification si la persistance est bien activée
+# 1. Verify if persistence is enabled and unlocked
 if [ ! -d "$HOME/Persistent" ]; then
-    echo "[!] Erreur : Le stockage persistant n'est pas activé ou déverrouillé."
+    echo "[!] Error: Persistent storage is not enabled or unlocked."
     exit 1
 fi
 
-# Création des arborescences nécessaires
+# Create necessary directories
 mkdir -p "$APP_DIR"
 mkdir -p "$DOTFILES_DESKTOP_DIR"
 mkdir -p "$USER_DESKTOP_DIR"
 
-echo "=== Assistant d'installation AppImage pour Tails OS (Pro) ==="
+echo "=== Tails OS AppImage Installation Assistant (Pro) ==="
 echo ""
 
-# 2. Menu de sélection du mode
-echo "1) Télécharger une AppImage via une URL"
-echo "2) Utiliser un fichier AppImage déjà présent"
-read -rp "Choix [1/2] : " CHOICE
+# 2. Mode selection menu
+echo "1) Download an AppImage via URL"
+echo "2) Use an existing local AppImage file"
+read -rp "Choice [1/2] : " CHOICE
 
 if [ "$CHOICE" -eq 1 ]; then
-    read -rp "Entrez l'URL de l'AppImage : " APP_URL
-    read -rp "Nom du fichier final (ex: MonApp.AppImage) : " APP_FILENAME
+    read -rp "Enter AppImage URL : " APP_URL
+    read -rp "Final filename (e.g., MonApp.AppImage) : " APP_FILENAME
     
-    # Correction de l'extension si absente
     [[ "$APP_FILENAME" != *.AppImage ]] && APP_FILENAME="${APP_FILENAME}.AppImage"
     
     DEST_PATH="$APP_DIR/$APP_FILENAME"
-    echo "[*] Téléchargement en cours..."
+    echo "[*] Downloading in progress..."
     curl -L "$APP_URL" -o "$DEST_PATH"
     
 elif [ "$CHOICE" -eq 2 ]; then
-    read -rp "Chemin vers votre fichier .AppImage : " LOCAL_PATH
+    read -rp "Path to your .AppImage file : " LOCAL_PATH
     
-    # Nettoyage des guillemets éventuels
     LOCAL_PATH="${LOCAL_PATH//\'/}"
     LOCAL_PATH="${LOCAL_PATH//\"/}"
 
     if [ ! -f "$LOCAL_PATH" ]; then
-        echo "[!] Fichier introuvable : $LOCAL_PATH"
+        echo "[!] File not found : $LOCAL_PATH"
         exit 1
     fi
     
@@ -282,27 +320,32 @@ elif [ "$CHOICE" -eq 2 ]; then
     
     if [ "$LOCAL_PATH" != "$DEST_PATH" ]; then
         cp "$LOCAL_PATH" "$DEST_PATH"
-        echo "[*] Fichier copié dans $APP_DIR"
+        echo "[*] File copied to $APP_DIR"
     fi
 else
-    echo "[!] Choix invalide."
+    echo "[!] Invalid choice."
     exit 1
 fi
 
-# Autoriser l'exécution de l'AppImage
+# Grant execution permissions to the AppImage
 chmod +x "$DEST_PATH"
-echo "[+] Fichier rendu exécutable (chmod +x)."
+echo "[+] File marked as executable (chmod +x)."
 
-# 3. Informations pour le raccourci .desktop
+# 3. Desktop shortcut configuration
 echo ""
-echo "=== Configuration du raccourci dans le menu ==="
-read -rp "Nom affiché dans le menu (ex: Feather Wallet) : " APP_NAME
-read -rp "Nom du fichier .desktop (ex: feather.desktop) : " DESKTOP_FILENAME
-read -rp "Catégorie (ex: Utility, Network, System) [Utility] : " APP_CAT
+echo "=== Menu Shortcut Configuration ==="
+read -rp "Display name in menu (e.g., Feather Wallet) : " APP_NAME
+read -rp "Desktop filename (e.g., feather.desktop) : " DESKTOP_FILENAME
+echo "Valid categories to prevent 'Other': Utility, Network, Development, Office"
+read -rp "Category [Utility] : " APP_CAT
 APP_CAT=${APP_CAT:-Utility}
 
-read -rp "Chemin vers une icône perso (laisser vide pour icône par défaut) : " APP_ICON
-# Nettoyage des guillemets
+# Fallback mapping for invalid user inputs
+if [[ "$APP_CAT" =~ ^[Aa]ccessories$ ]]; then
+    APP_CAT="Utility"
+fi
+
+read -rp "Path to custom icon (leave blank for default icon) : " APP_ICON
 APP_ICON="${APP_ICON//\'/}"
 APP_ICON="${APP_ICON//\"/}"
 
@@ -312,12 +355,11 @@ fi
 
 [[ "$DESKTOP_FILENAME" != *.desktop ]] && DESKTOP_FILENAME="${DESKTOP_FILENAME}.desktop"
 
-# Chemins cibles pour les dotfiles et le lien utilisateur
 DOTFILES_FILE_PATH="$DOTFILES_DESKTOP_DIR/$DESKTOP_FILENAME"
 USER_FILE_PATH="$USER_DESKTOP_DIR/$DESKTOP_FILENAME"
 
-# 4. Génération propre du fichier .desktop dans le dossier source des dotfiles
-cat <<EOF > "$DOTFILES_FILE_PATH"
+# 4. Clean .desktop file generation
+cat << EOF > "$DOTFILES_FILE_PATH"
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -330,29 +372,29 @@ EOF
 
 chmod +x "$DOTFILES_FILE_PATH"
 
-# 5. Création / Mise à jour du lien symbolique vers le profil actif
+# 5. Create / Update symbolic link to active profile
 rm -f "$USER_FILE_PATH"
 ln -s "$DOTFILES_FILE_PATH" "$USER_FILE_PATH"
 
-# 6. Rafraîchissement de la base de données du bureau
+# 6. Refresh desktop application database
 update-desktop-database "$USER_DESKTOP_DIR"
 
 echo ""
 echo "=================================================="
-echo "[✔] Installation et persistance configurées avec succès !"
-echo "• AppImage stockée dans : $DEST_PATH"
-echo "• Raccourci dotfiles    : $DOTFILES_FILE_PATH"
-echo "• Lien actif utilisateur: $USER_FILE_PATH"
+echo "[✔] Installation and persistence configured successfully !"
+echo "• AppImage stored in     : $DEST_PATH"
+echo "• Dotfiles shortcut      : $DOTFILES_FILE_PATH"
+echo "• Active user symlink    : $USER_FILE_PATH"
 echo ""
-echo "L'application est immédiatement disponible dans ton menu !"</code></pre>
+echo "The application is now immediately available in your app menu !"</code></pre>
             </div>
 
             <!-- Fallback zone (Works 100% without JS / No-JS) -->
             <div class="fallback-container">
-                <label for="fallbackBox">💡 Zone de copie directe (Sélectionnez tout et Ctrl+C si le JS est désactivé) :</label>
+                <label for="fallbackBox">💡 Direct Copy Zone (Select all and press Ctrl+C if JavaScript is disabled):</label>
                 <textarea id="fallbackBox" class="fallback-textarea" readonly onclick="this.select();">#!/usr/bin/env bash
 # ==============================================================================
-# Assistant modulaire d'installation d'AppImage pour Tails OS avec Persistance
+# Modular AppImage Installation Assistant for Tails OS with Persistence
 # ==============================================================================
 
 APP_DIR="$HOME/Persistent/Apps"
@@ -360,7 +402,7 @@ DOTFILES_DESKTOP_DIR="/live/persistence/TailsData_unlocked/dotfiles/.local/share
 USER_DESKTOP_DIR="$HOME/.local/share/applications"
 
 if [ ! -d "$HOME/Persistent" ]; then
-    echo "[!] Erreur : Le stockage persistant n'est pas activé ou déverrouillé."
+    echo "[!] Error: Persistent storage is not enabled or unlocked."
     exit 1
 fi
 
@@ -368,31 +410,31 @@ mkdir -p "$APP_DIR"
 mkdir -p "$DOTFILES_DESKTOP_DIR"
 mkdir -p "$USER_DESKTOP_DIR"
 
-echo "=== Assistant d'installation AppImage pour Tails OS (Pro) ==="
+echo "=== Tails OS AppImage Installation Assistant (Pro) ==="
 echo ""
 
-echo "1) Télécharger une AppImage via une URL"
-echo "2) Utiliser un fichier AppImage déjà présent"
-read -rp "Choix [1/2] : " CHOICE
+echo "1) Download an AppImage via URL"
+echo "2) Use an existing local AppImage file"
+read -rp "Choice [1/2] : " CHOICE
 
 if [ "$CHOICE" -eq 1 ]; then
-    read -rp "Entrez l'URL de l'AppImage : " APP_URL
-    read -rp "Nom du fichier final (ex: MonApp.AppImage) : " APP_FILENAME
+    read -rp "Enter AppImage URL : " APP_URL
+    read -rp "Final filename (e.g., MonApp.AppImage) : " APP_FILENAME
     
     [[ "$APP_FILENAME" != *.AppImage ]] && APP_FILENAME="${APP_FILENAME}.AppImage"
     
     DEST_PATH="$APP_DIR/$APP_FILENAME"
-    echo "[*] Téléchargement en cours..."
+    echo "[*] Downloading in progress..."
     curl -L "$APP_URL" -o "$DEST_PATH"
     
 elif [ "$CHOICE" -eq 2 ]; then
-    read -rp "Chemin vers votre fichier .AppImage : " LOCAL_PATH
+    read -rp "Path to your .AppImage file : " LOCAL_PATH
     
     LOCAL_PATH="${LOCAL_PATH//\'/}"
     LOCAL_PATH="${LOCAL_PATH//\"/}"
 
     if [ ! -f "$LOCAL_PATH" ]; then
-        echo "[!] Fichier introuvable : $LOCAL_PATH"
+        echo "[!] File not found : $LOCAL_PATH"
         exit 1
     fi
     
@@ -401,24 +443,28 @@ elif [ "$CHOICE" -eq 2 ]; then
     
     if [ "$LOCAL_PATH" != "$DEST_PATH" ]; then
         cp "$LOCAL_PATH" "$DEST_PATH"
-        echo "[*] Fichier copié dans $APP_DIR"
+        echo "[*] File copied to $APP_DIR"
     fi
 else
-    echo "[!] Choix invalide."
+    echo "[!] Invalid choice."
     exit 1
 fi
 
 chmod +x "$DEST_PATH"
-echo "[+] Fichier rendu exécutable (chmod +x)."
+echo "[+] File marked as executable (chmod +x)."
 
 echo ""
-echo "=== Configuration du raccourci dans le menu ==="
-read -rp "Nom affiché dans le menu (ex: Feather Wallet) : " APP_NAME
-read -rp "Nom du fichier .desktop (ex: feather.desktop) : " DESKTOP_FILENAME
-read -rp "Catégorie (ex: Utility, Network, System) [Utility] : " APP_CAT
+echo "=== Menu Shortcut Configuration ==="
+read -rp "Display name in menu (e.g., Feather Wallet) : " APP_NAME
+read -rp "Desktop filename (e.g., feather.desktop) : " DESKTOP_FILENAME
+read -rp "Category [Utility] : " APP_CAT
 APP_CAT=${APP_CAT:-Utility}
 
-read -rp "Chemin vers une icône perso (laisser vide pour icône par défaut) : " APP_ICON
+if [[ "$APP_CAT" =~ ^[Aa]ccessories$ ]]; then
+    APP_CAT="Utility"
+fi
+
+read -rp "Path to custom icon (leave blank for default icon) : " APP_ICON
 APP_ICON="${APP_ICON//\'/}"
 APP_ICON="${APP_ICON//\"/}"
 
@@ -431,7 +477,7 @@ fi
 DOTFILES_FILE_PATH="$DOTFILES_DESKTOP_DIR/$DESKTOP_FILENAME"
 USER_FILE_PATH="$USER_DESKTOP_DIR/$DESKTOP_FILENAME"
 
-cat <<EOF > "$DOTFILES_FILE_PATH"
+cat << EOF > "$DOTFILES_FILE_PATH"
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -451,24 +497,24 @@ update-desktop-database "$USER_DESKTOP_DIR"
 
 echo ""
 echo "=================================================="
-echo "[✔] Installation et persistance configurées avec succès !"
-echo "• AppImage stockée dans : $DEST_PATH"
-echo "• Raccourci dotfiles    : $DOTFILES_FILE_PATH"
-echo "• Lien actif utilisateur: $USER_FILE_PATH"
+echo "[✔] Installation and persistence configured successfully !"
+echo "• AppImage stored in     : $DEST_PATH"
+echo "• Dotfiles shortcut      : $DOTFILES_FILE_PATH"
+echo "• Active user symlink    : $USER_FILE_PATH"
 echo ""
-echo "L'application est immédiatement disponible dans ton menu !"</textarea>
+echo "The application is now immediately available in your app menu !"</textarea>
             </div>
         </div>
 
         <div class="card">
-            <h2>🚀 Exécution dans Tails OS</h2>
-            <p>1. Sauvegarder le script : <code>cat &lt;&lt; 'EOF' &gt; ~/Persistent/install_appimage.sh</code> (coller le code) puis <code>EOF</code>.</p>
-            <p>2. Rendre exécutable : <code>chmod +x ~/Persistent/install_appimage.sh</code></p>
-            <p>3. Lancer : <code>~/Persistent/install_appimage.sh</code></p>
+            <h2>🚀 Execution inside Tails OS</h2>
+            <p>1. Save the script : <code>cat &lt;&lt; 'EOF' &gt; ~/Persistent/install_appimage.sh</code> (paste code) then <code>EOF</code>.</p>
+            <p>2. Make executable : <code>chmod +x ~/Persistent/install_appimage.sh</code></p>
+            <p>3. Run it : <code>~/Persistent/install_appimage.sh</code></p>
         </div>
 
         <footer>
-            <p>Tails OS AppImage Toolkit — Conçu pour un usage hautement souverain.</p>
+            <p>Tails OS AppImage Toolkit — Engineered for secure sovereign workflows.</p>
         </footer>
     </div>
 
@@ -478,19 +524,19 @@ echo "L'application est immédiatement disponible dans ton menu !"</textarea>
             const btn = document.getElementById('copyBtn');
             
             navigator.clipboard.writeText(codeText).then(() => {
-                btn.textContent = '✅ Copié !';
+                btn.textContent = '✅ Copied!';
                 btn.style.backgroundColor = 'var(--success)';
                 
                 setTimeout(() => {
-                    btn.textContent = '📋 Copier le code';
+                    btn.textContent = '📋 Copy Code';
                     btn.style.backgroundColor = 'var(--accent)';
                 }, 2000);
             }).catch(err => {
-                console.error('Erreur de copie :', err);
+                console.error('Clipboard error:', err);
                 const fallback = document.getElementById('fallbackBox');
                 fallback.focus();
                 fallback.select();
-                alert('Copie automatique bloquée par le navigateur. Le texte a été sélectionné dans la zone de secours ci-dessous (Ctrl+C).');
+                alert('Automatic copy blocked by browser. The text has been selected in the fallback box below (Ctrl+C).');
             });
         }
     </script>
